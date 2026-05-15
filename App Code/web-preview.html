@@ -1,0 +1,1244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kim App Web Preview</title>
+  <style>
+    :root {
+      --background: #ffffff;
+      --surface: #f4f6f8;
+      --surface-muted: #e9edf2;
+      --border: #d5dbe2;
+      --text: #0e1116;
+      --muted: #4a5360;
+      --primary: #1f6feb;
+      --primary-dark: #1858bd;
+      --success: #2e8b57;
+      --danger: #b3261e;
+      --warn: #b26a00;
+      --done-surface: #e6f3ec;
+      --shadow: 0 10px 26px rgba(14, 17, 22, 0.09);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --content-max: 760px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--background);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.35;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--background);
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.42;
+    }
+
+    .app {
+      min-height: 100vh;
+      padding-bottom: 144px;
+    }
+
+    .page {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .header-block {
+      margin-bottom: 18px;
+    }
+
+    .header-row,
+    .notes-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .date-label,
+    .label,
+    .time,
+    .muted {
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .date-label,
+    .label,
+    .time {
+      font-size: 18px;
+    }
+
+    h1 {
+      margin: 4px 0 4px;
+      color: var(--text);
+      font-size: clamp(36px, 8vw, 44px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      color: var(--text);
+      font-size: 22px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 22px;
+    }
+
+    .inline-link {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      border: 0;
+      background: transparent;
+      color: var(--primary);
+      font-size: 18px;
+      font-weight: 750;
+      padding: 6px 0;
+    }
+
+    .pill-button {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--primary);
+      border-radius: 9999px;
+      background: #ffffff;
+      color: var(--primary);
+      font-size: 18px;
+      font-weight: 800;
+      padding: 10px 18px;
+      white-space: nowrap;
+    }
+
+    .back-button {
+      min-height: 48px;
+      border: 0;
+      background: transparent;
+      color: var(--primary);
+      font-size: 20px;
+      font-weight: 750;
+      padding: 6px 0;
+    }
+
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 16px 24px 0;
+    }
+
+    .nav-tab {
+      min-height: 48px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .nav-tab.active {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .check-row {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      align-items: center;
+      min-height: 74px;
+      gap: 16px;
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      color: var(--text);
+      padding: 16px 24px;
+      text-align: left;
+      box-shadow: none;
+    }
+
+    .check-row.done {
+      border-color: var(--success);
+      background: var(--done-surface);
+    }
+
+    .check {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--border);
+      border-radius: 9999px;
+      background: #ffffff;
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .done .check {
+      border-color: var(--success);
+      background: var(--success);
+    }
+
+    .check-label {
+      min-width: 0;
+      color: var(--text);
+      font-size: 28px;
+      font-weight: 550;
+      overflow-wrap: anywhere;
+    }
+
+    .done .check-label {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .note-card,
+    .answer-block,
+    .field,
+    .empty-box {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+    }
+
+    .note-card {
+      display: block;
+      width: 100%;
+      padding: 24px;
+      color: inherit;
+      text-align: left;
+      text-decoration: none;
+      box-shadow: var(--shadow);
+    }
+
+    .note-title {
+      margin-bottom: 6px;
+      color: var(--text);
+      font-size: 28px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .note-preview {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 22px;
+      overflow-wrap: anywhere;
+    }
+
+    .flag {
+      display: inline-flex;
+      margin-top: 12px;
+      border-radius: var(--radius-sm);
+      background: #fff4e5;
+      color: var(--warn);
+      font-size: 16px;
+      font-weight: 750;
+      padding: 6px 10px;
+    }
+
+    .empty {
+      margin-top: 32px;
+      color: var(--muted);
+      font-size: 22px;
+      text-align: center;
+    }
+
+    .empty small {
+      display: block;
+      margin-top: 10px;
+      font-size: 18px;
+    }
+
+    .form {
+      display: grid;
+      gap: 22px;
+    }
+
+    .field-group {
+      display: grid;
+      gap: 8px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .field {
+      width: 100%;
+      min-height: 62px;
+      padding: 16px;
+      color: var(--text);
+      font-size: 26px;
+      outline: none;
+    }
+
+    textarea.field {
+      min-height: 230px;
+      resize: vertical;
+    }
+
+    .field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(31, 111, 235, 0.14);
+    }
+
+    .big-button {
+      display: inline-flex;
+      width: 100%;
+      min-height: 78px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+      border-radius: var(--radius-lg);
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 28px;
+      font-weight: 750;
+      padding: 16px 24px;
+    }
+
+    .big-button.secondary {
+      border-color: var(--border);
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .error-text {
+      color: var(--danger);
+      font-size: 18px;
+      font-weight: 750;
+    }
+
+    .answer-block {
+      display: grid;
+      gap: 12px;
+      margin-top: 26px;
+      padding: 24px;
+    }
+
+    .answer-block.error {
+      border-color: var(--danger);
+    }
+
+    .quote,
+    .body-text {
+      color: var(--text);
+      font-size: 28px;
+      overflow-wrap: anywhere;
+    }
+
+    .body-text {
+      margin-top: 26px;
+      white-space: pre-wrap;
+    }
+
+    .read-button {
+      justify-self: start;
+      min-height: 44px;
+      margin-top: 4px;
+      border: 1px solid var(--primary);
+      border-radius: 9999px;
+      background: transparent;
+      color: var(--primary);
+      font-size: 18px;
+      font-weight: 800;
+      padding: 8px 16px;
+    }
+
+    .other-results {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .other-card {
+      display: grid;
+      gap: 4px;
+      padding: 4px 0;
+    }
+
+    .other-card .quote {
+      font-size: 22px;
+    }
+
+    .empty-box {
+      margin-top: 26px;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 22px;
+    }
+
+    .floating-cta {
+      position: fixed;
+      left: 50%;
+      bottom: 32px;
+      display: inline-flex;
+      min-height: 64px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: 0;
+      border-radius: 9999px;
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 12px 28px rgba(14, 17, 22, 0.22);
+      font-size: 28px;
+      font-weight: 750;
+      padding: 14px 32px;
+      text-decoration: none;
+      transform: translateX(-50%);
+      z-index: 20;
+      white-space: nowrap;
+    }
+
+    .floating-cta:hover,
+    .big-button:hover,
+    .nav-tab:hover,
+    .pill-button:hover,
+    .check-row:hover,
+    .note-card:hover {
+      filter: brightness(0.98);
+    }
+
+    .plus {
+      margin-top: -4px;
+      font-size: 34px;
+      font-weight: 350;
+      line-height: 1;
+    }
+
+    .topbar {
+      width: min(100%, var(--content-max));
+      margin: 0 auto;
+      padding: 14px 24px 0;
+    }
+
+    .detail-title {
+      margin-top: 16px;
+      font-size: clamp(34px, 7vw, 42px);
+    }
+
+    @media (max-width: 560px) {
+      .page,
+      .nav-tabs,
+      .topbar {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .header-row,
+      .notes-title-row {
+        display: grid;
+      }
+
+      .pill-button {
+        justify-self: start;
+      }
+
+      .check-label,
+      .note-title,
+      .field,
+      .quote,
+      .body-text,
+      .big-button {
+        font-size: 24px;
+      }
+
+      .note-preview,
+      .subtitle {
+        font-size: 20px;
+      }
+
+      .floating-cta {
+        bottom: 20px;
+        min-height: 60px;
+        font-size: 24px;
+        padding: 12px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app" class="app" aria-live="polite"></main>
+
+  <script>
+    const STORE_KEY = "kimapp.webPreview.v1";
+    const TODAY_ID = "today";
+    const NOTES_ID = "notes";
+    const SEED_CHECKLIST = [
+      "Check morning medication plan",
+      "Eat breakfast",
+      "Drink a glass of water",
+      "Get dressed",
+      "Bring hearing aids and glasses"
+    ];
+    const STOP_WORDS = new Set([
+      "where", "what", "when", "did", "do", "i", "my", "the", "a", "an",
+      "is", "are", "was", "were", "to", "of", "for", "about"
+    ]);
+    const SYNONYM_GROUPS = [
+      ["key", "keys"],
+      ["med", "meds", "medicine", "medicines", "medication", "medications", "pill", "pills"],
+      ["phone", "cell", "cellphone"],
+      ["remote", "clicker"],
+      ["wallet", "purse"],
+      ["glass", "glasses", "eyeglasses"],
+      ["note", "notes"]
+    ];
+    const SYNONYM_LOOKUP = buildSynonymLookup();
+    const FUZZY_MIN_LEN = 5;
+    const SCORE_FLOOR = 1;
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+    const app = document.querySelector("#app");
+    let searchState = { query: "", status: "idle", results: [], error: "" };
+    let readLabel = "Read aloud";
+
+    function buildSynonymLookup() {
+      const map = new Map();
+      for (const group of SYNONYM_GROUPS) {
+        const set = new Set(group);
+        for (const word of group) map.set(word, set);
+      }
+      return map;
+    }
+
+    function defaultState() {
+      return {
+        checklist: SEED_CHECKLIST.map((text, index) => ({
+          id: `check_${index}`,
+          text,
+          sortOrder: index,
+          active: true
+        })),
+        completions: {},
+        notes: []
+      };
+    }
+
+    function loadState() {
+      const fallback = defaultState();
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return {
+          checklist: Array.isArray(parsed.checklist) && parsed.checklist.length
+            ? parsed.checklist
+            : fallback.checklist,
+          completions: parsed.completions && typeof parsed.completions === "object"
+            ? parsed.completions
+            : {},
+          notes: Array.isArray(parsed.notes) ? parsed.notes : []
+        };
+      } catch {
+        return fallback;
+      }
+    }
+
+    function saveState(state) {
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    }
+
+    function todayKey(date = new Date()) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function formatToday() {
+      return new Date().toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric"
+      });
+    }
+
+    function formatTimestamp(value) {
+      const date = new Date(value);
+      const now = new Date();
+      const sameDay = date.toDateString() === now.toDateString();
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      const time = date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+      if (sameDay) return `Today, ${time}`;
+      if (date.toDateString() === yesterday.toDateString()) return `Yesterday, ${time}`;
+      const day = date.toLocaleDateString(undefined, {
+        weekday: "short",
+        month: "short",
+        day: "numeric"
+      });
+      return `${day}, ${time}`;
+    }
+
+    function formatFull(value) {
+      const date = new Date(value);
+      const day = date.toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      });
+      const time = date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+      return `${day} | ${time}`;
+    }
+
+    function formatRecordedAt(value) {
+      const date = new Date(value);
+      const now = new Date();
+      const sameDay = date.toDateString() === now.toDateString();
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      const time = date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+      if (sameDay) return `today at ${time}`;
+      if (date.toDateString() === yesterday.toDateString()) return `yesterday at ${time}`;
+      const day = date.toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric"
+      });
+      return `${day} at ${time}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function firstLine(value) {
+      const line = String(value ?? "").split("\n")[0].trim();
+      return line.length > 60 ? `${line.slice(0, 60).trim()}...` : line;
+    }
+
+    function noteDisplayTitle(note) {
+      const title = (note.title ?? "").trim();
+      const body = (note.transcript ?? "").trim();
+      return title || (body ? firstLine(body) : "Untitled note");
+    }
+
+    function route() {
+      const hash = window.location.hash || "#/today";
+      const path = hash.replace(/^#\/?/, "");
+      if (!path || path === TODAY_ID) return { name: TODAY_ID };
+      if (path === NOTES_ID) return { name: NOTES_ID };
+      if (path === "new-note") return { name: "new-note" };
+      if (path === "ask-notes") return { name: "ask-notes" };
+      const detail = path.match(/^notes\/(.+)$/);
+      if (detail) return { name: "note-detail", id: decodeURIComponent(detail[1]) };
+      return { name: TODAY_ID };
+    }
+
+    function setRoute(path) {
+      window.location.hash = path;
+    }
+
+    function normalizeText(value) {
+      return String(value ?? "")
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}\s']/gu, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function tokenize(value) {
+      const normalized = normalizeText(value);
+      return normalized ? normalized.split(" ").filter(Boolean) : [];
+    }
+
+    function extractSearchTerms(query) {
+      const seen = new Set();
+      const terms = [];
+      for (const token of tokenize(query)) {
+        if (STOP_WORDS.has(token)) continue;
+        if (token.length < 2) continue;
+        if (seen.has(token)) continue;
+        seen.add(token);
+        terms.push(token);
+      }
+      return terms;
+    }
+
+    function expandTerm(term) {
+      return SYNONYM_LOOKUP.get(term) || new Set([term]);
+    }
+
+    function levenshteinAtMostOne(a, b) {
+      if (a === b) return true;
+      const lenDiff = Math.abs(a.length - b.length);
+      if (lenDiff > 1) return false;
+
+      if (a.length === b.length) {
+        let mismatches = 0;
+        for (let i = 0; i < a.length; i += 1) {
+          if (a[i] !== b[i]) {
+            mismatches += 1;
+            if (mismatches > 1) return false;
+          }
+        }
+        return true;
+      }
+
+      const shorter = a.length < b.length ? a : b;
+      const longer = a.length < b.length ? b : a;
+      let i = 0;
+      let j = 0;
+      let edits = 0;
+      while (i < shorter.length && j < longer.length) {
+        if (shorter[i] === longer[j]) {
+          i += 1;
+          j += 1;
+        } else {
+          edits += 1;
+          if (edits > 1) return false;
+          j += 1;
+        }
+      }
+      return true;
+    }
+
+    function matchTermAgainstTokens(term, titleTokens, transcriptTokens) {
+      const expanded = expandTerm(term);
+      const titleSet = new Set(titleTokens);
+      const transcriptSet = new Set(transcriptTokens);
+      let directInTitle = false;
+      let directInTranscript = false;
+      let synonymInTitle = false;
+      let synonymInTranscript = false;
+
+      for (const variant of expanded) {
+        const inTitle = titleSet.has(variant);
+        const inTranscript = transcriptSet.has(variant);
+        if (!inTitle && !inTranscript) continue;
+        if (variant === term) {
+          directInTitle = directInTitle || inTitle;
+          directInTranscript = directInTranscript || inTranscript;
+        } else {
+          synonymInTitle = synonymInTitle || inTitle;
+          synonymInTranscript = synonymInTranscript || inTranscript;
+        }
+      }
+
+      if (directInTitle || directInTranscript) {
+        return { kind: "direct", fieldsHit: { title: directInTitle, transcript: directInTranscript } };
+      }
+      if (synonymInTitle || synonymInTranscript) {
+        return { kind: "synonym", fieldsHit: { title: synonymInTitle, transcript: synonymInTranscript } };
+      }
+
+      if (term.length >= FUZZY_MIN_LEN) {
+        const fuzzyTitle = titleTokens.some((token) => token.length >= FUZZY_MIN_LEN - 1 && levenshteinAtMostOne(term, token));
+        const fuzzyTranscript = transcriptTokens.some((token) => token.length >= FUZZY_MIN_LEN - 1 && levenshteinAtMostOne(term, token));
+        if (fuzzyTitle || fuzzyTranscript) {
+          return { kind: "fuzzy", fieldsHit: { title: fuzzyTitle, transcript: fuzzyTranscript } };
+        }
+      }
+
+      return null;
+    }
+
+    function scoreNote(note, normalizedQuery, terms) {
+      const titleNormalized = note.title ? normalizeText(note.title) : "";
+      const transcriptNormalized = note.transcript ? normalizeText(note.transcript) : "";
+      const titleTokens = titleNormalized ? titleNormalized.split(" ") : [];
+      const transcriptTokens = transcriptNormalized ? transcriptNormalized.split(" ") : [];
+      const queryWordCount = normalizedQuery ? normalizedQuery.split(" ").length : 0;
+      let score = 0;
+      let hasPhraseMatch = false;
+      let ideaCount = 0;
+      const matchedTerms = [];
+
+      if (normalizedQuery && queryWordCount >= 2) {
+        if (titleNormalized.includes(normalizedQuery)) {
+          score += 20;
+          hasPhraseMatch = true;
+        } else if (transcriptNormalized.includes(normalizedQuery)) {
+          score += 15;
+          hasPhraseMatch = true;
+        }
+      }
+
+      for (const term of terms) {
+        const match = matchTermAgainstTokens(term, titleTokens, transcriptTokens);
+        if (!match) continue;
+        matchedTerms.push(term);
+        if (match.kind === "direct") {
+          ideaCount += 1;
+          if (match.fieldsHit.title) score += 6;
+          if (match.fieldsHit.transcript) score += 3;
+        } else if (match.kind === "synonym") {
+          ideaCount += 1;
+          if (match.fieldsHit.title) score += 4;
+          if (match.fieldsHit.transcript) score += 2;
+        } else {
+          if (match.fieldsHit.title) score += 2;
+          if (match.fieldsHit.transcript) score += 1;
+        }
+      }
+
+      if (score > 0) {
+        const ageDays = (Date.now() - new Date(note.createdAt).getTime()) / MS_PER_DAY;
+        if (ageDays < 1) score += 3;
+        else if (ageDays < 2) score += 1;
+      }
+
+      return { score, matchedTerms, ideaCount, hasPhraseMatch };
+    }
+
+    function rankNotes(notes, query) {
+      const terms = extractSearchTerms(query);
+      if (terms.length === 0) return [];
+      const normalizedQuery = normalizeText(query);
+      const results = [];
+      for (const note of notes) {
+        const scored = scoreNote(note, normalizedQuery, terms);
+        if (scored.score < SCORE_FLOOR) continue;
+        if (scored.matchedTerms.length === 0 && !scored.hasPhraseMatch) continue;
+        results.push({
+          note,
+          score: scored.score,
+          matchedTerms: scored.matchedTerms,
+          confidence: scored.hasPhraseMatch || scored.ideaCount >= 2 ? "strong" : "possible"
+        });
+      }
+      return results.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return new Date(b.note.createdAt).getTime() - new Date(a.note.createdAt).getTime();
+      });
+    }
+
+    function quoteOf(result) {
+      return ((result.note.transcript ?? result.note.title) || "").trim();
+    }
+
+    function spokenAnswerFor(result) {
+      const header = result.confidence === "strong"
+        ? "I found this saved note:"
+        : "This might be related:";
+      const quote = quoteOf(result);
+      return `${header} ${quote ? `"${quote}". ` : ""}Recorded ${formatRecordedAt(result.note.createdAt)}.`;
+    }
+
+    function speak(text) {
+      if (!("speechSynthesis" in window)) {
+        readLabel = "Speech unavailable";
+        render();
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.92;
+      utterance.onend = () => {
+        readLabel = "Read aloud";
+        render();
+      };
+      utterance.onerror = () => {
+        readLabel = "Read aloud";
+        render();
+      };
+      readLabel = "Stop reading";
+      window.speechSynthesis.speak(utterance);
+      render();
+    }
+
+    function stopSpeech() {
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      readLabel = "Read aloud";
+    }
+
+    function renderTabs(active) {
+      return `
+        <nav class="nav-tabs" aria-label="Main views">
+          <button class="nav-tab ${active === TODAY_ID ? "active" : ""}" data-action="go" data-path="/today">Today</button>
+          <button class="nav-tab ${active === NOTES_ID ? "active" : ""}" data-action="go" data-path="/notes">Notes</button>
+        </nav>
+      `;
+    }
+
+    function renderFloatingCta() {
+      return `
+        <a class="floating-cta" href="#/new-note" aria-label="Create a new note">
+          <span class="plus">+</span>
+          <span>New Note</span>
+        </a>
+      `;
+    }
+
+    function renderToday(state) {
+      const key = todayKey();
+      const completions = state.completions[key] || {};
+      const entries = state.checklist
+        .filter((item) => item.active !== false)
+        .sort((a, b) => a.sortOrder - b.sortOrder);
+      const remaining = entries.filter((item) => completions[item.id] !== "done").length;
+      const subtitle = remaining === 0 && entries.length > 0
+        ? "All done. Nice work."
+        : `${remaining} of ${entries.length} left`;
+      const rows = entries.map((item) => {
+        const done = completions[item.id] === "done";
+        return `
+          <button class="check-row ${done ? "done" : ""}" data-action="toggle-check" data-id="${escapeHtml(item.id)}" aria-pressed="${done}">
+            <span class="check" aria-hidden="true">${done ? "&#10003;" : ""}</span>
+            <span class="check-label">${escapeHtml(item.text)}</span>
+          </button>
+        `;
+      }).join("");
+
+      return `
+        ${renderTabs(TODAY_ID)}
+        <section class="page">
+          <div class="header-block">
+            <div class="date-label">${escapeHtml(formatToday())}</div>
+            <h1>Today's checklist</h1>
+            <p class="subtitle">${escapeHtml(subtitle)}</p>
+            <button class="inline-link" data-action="go" data-path="/ask-notes">Ask saved notes</button>
+          </div>
+          <div class="list">
+            ${rows || `<p class="empty">Your caregiver can add items in caregiver mode.</p>`}
+          </div>
+        </section>
+        ${renderFloatingCta()}
+      `;
+    }
+
+    function renderNotes(state) {
+      const notes = [...state.notes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const cards = notes.map((note) => {
+        const title = noteDisplayTitle(note);
+        const body = (note.transcript ?? "").trim();
+        const showPreview = body && ((note.title ?? "").trim() || body.length > title.length + 8);
+        return `
+          <a class="note-card" href="#/notes/${encodeURIComponent(note.id)}">
+            <div class="note-title">${escapeHtml(title)}</div>
+            <div class="time">${escapeHtml(formatTimestamp(note.createdAt))}</div>
+            ${showPreview ? `<div class="note-preview">${escapeHtml(body)}</div>` : ""}
+            ${note.needsReview ? `<span class="flag">Needs caregiver review</span>` : ""}
+          </a>
+        `;
+      }).join("");
+      const subtitle = notes.length === 0
+        ? "Tap the blue button below to start one."
+        : `${notes.length} note${notes.length === 1 ? "" : "s"} saved`;
+
+      return `
+        ${renderTabs(NOTES_ID)}
+        <section class="page">
+          <div class="header-block">
+            <div class="notes-title-row">
+              <div>
+                <div class="date-label">Today is one tap away</div>
+                <h1>Your notes</h1>
+              </div>
+              <button class="pill-button" data-action="go" data-path="/ask-notes">Ask My Notes</button>
+            </div>
+            <p class="subtitle">${escapeHtml(subtitle)}</p>
+          </div>
+          <div class="list">
+            ${cards || `<p class="empty">No notes yet.<small>Tap "New Note" below to create one.</small></p>`}
+          </div>
+        </section>
+        ${renderFloatingCta()}
+      `;
+    }
+
+    function renderNewNote() {
+      return `
+        <div class="topbar">
+          <button class="back-button" data-action="back">Cancel</button>
+        </div>
+        <section class="page">
+          <div class="header-block">
+            <h1>New note</h1>
+          </div>
+          <form class="form" id="note-form">
+            <div class="field-group">
+              <label class="label" for="note-title">Note name</label>
+              <input class="field" id="note-title" name="title" maxlength="120" autocomplete="off" placeholder="What's this note about?">
+            </div>
+            <div class="field-group">
+              <label class="label" for="note-body">What you want to remember</label>
+              <p class="hint">Tap the microphone on your keyboard to speak instead of type.</p>
+              <textarea class="field" id="note-body" name="body" placeholder="Start typing or tap the mic on the keyboard..."></textarea>
+            </div>
+            <p class="error-text" id="note-error" hidden></p>
+            <button class="big-button" type="submit">Save note</button>
+          </form>
+        </section>
+      `;
+    }
+
+    function renderAskNotes() {
+      const top = searchState.results[0];
+      const others = searchState.results.slice(1, 4);
+      const header = top && top.confidence === "strong"
+        ? "I found this saved note:"
+        : "This might be related:";
+      const noMatch = searchState.status === "done" && !top;
+      const answer = top ? `
+        <div class="answer-block">
+          <h2>${escapeHtml(header)}</h2>
+          <p class="quote">"${escapeHtml(quoteOf(top))}"</p>
+          <p class="time">Recorded ${escapeHtml(formatRecordedAt(top.note.createdAt))}.</p>
+          <button class="read-button" data-action="read-result" data-index="0">${escapeHtml(readLabel)}</button>
+          ${others.length ? `
+            <div class="other-results">
+              <h2>Other matching notes</h2>
+              ${others.map((result) => `
+                <div class="other-card">
+                  <p class="quote">"${escapeHtml(quoteOf(result))}"</p>
+                  <p class="time">Recorded ${escapeHtml(formatRecordedAt(result.note.createdAt))}.</p>
+                </div>
+              `).join("")}
+            </div>
+          ` : ""}
+        </div>
+      ` : "";
+
+      return `
+        <div class="topbar">
+          <button class="back-button" data-action="back">Back</button>
+        </div>
+        <section class="page">
+          <form class="form" id="ask-form">
+            <div class="field-group">
+              <label class="label" for="ask-query">Your question</label>
+              <p class="hint">Tap the microphone on your keyboard to speak instead of type.</p>
+              <textarea class="field" id="ask-query" name="query" placeholder="Ask about something you saved">${escapeHtml(searchState.query)}</textarea>
+            </div>
+            <button class="big-button" type="submit" ${searchState.status === "searching" || !searchState.query.trim() ? "disabled" : ""}>
+              ${searchState.status === "searching" ? "Searching..." : "Search Notes"}
+            </button>
+          </form>
+          ${answer}
+          ${noMatch ? `
+            <div class="answer-block">
+              <p class="quote">I could not find a saved note about that.</p>
+              <button class="read-button" data-action="read-text" data-text="I could not find a saved note about that.">${escapeHtml(readLabel)}</button>
+            </div>
+          ` : ""}
+          ${searchState.status === "error" ? `
+            <div class="answer-block error">
+              <p class="quote">I could not search your notes right now. Please try again.</p>
+              <button class="read-button" data-action="read-text" data-text="I could not search your notes right now. Please try again.">${escapeHtml(readLabel)}</button>
+            </div>
+          ` : ""}
+        </section>
+      `;
+    }
+
+    function renderNoteDetail(state, id) {
+      const note = state.notes.find((item) => item.id === id);
+      if (!note) {
+        return `
+          <div class="topbar">
+            <button class="back-button" data-action="go" data-path="/notes">Back</button>
+          </div>
+          <section class="page">
+            <p class="empty-box">Note not found.</p>
+          </section>
+          ${renderFloatingCta()}
+        `;
+      }
+      const title = (note.title ?? "").trim();
+      const body = (note.transcript ?? "").trim();
+      const speech = [title, body].filter(Boolean).join(". ");
+      return `
+        <div class="topbar">
+          <button class="back-button" data-action="go" data-path="/notes">Back</button>
+        </div>
+        <section class="page">
+          ${title ? `<h1 class="detail-title">${escapeHtml(title)}</h1>` : `<h1 class="detail-title">Untitled note</h1>`}
+          <p class="time">${escapeHtml(formatFull(note.createdAt))}</p>
+          ${body ? `<div class="body-text">${escapeHtml(body)}</div>` : `<div class="empty-box">This note is empty.</div>`}
+          ${note.needsReview ? `<span class="flag">Flagged for caregiver review</span>` : ""}
+          ${speech ? `<div style="margin-top: 28px;"><button class="big-button secondary" data-action="read-text" data-text="${escapeHtml(speech)}">${escapeHtml(readLabel)}</button></div>` : ""}
+        </section>
+        ${renderFloatingCta()}
+      `;
+    }
+
+    function render() {
+      const state = loadState();
+      const current = route();
+      if (current.name === TODAY_ID) app.innerHTML = renderToday(state);
+      else if (current.name === NOTES_ID) app.innerHTML = renderNotes(state);
+      else if (current.name === "new-note") app.innerHTML = renderNewNote();
+      else if (current.name === "ask-notes") app.innerHTML = renderAskNotes();
+      else if (current.name === "note-detail") app.innerHTML = renderNoteDetail(state, current.id);
+    }
+
+    document.addEventListener("click", (event) => {
+      const target = event.target.closest("[data-action]");
+      if (!target) return;
+      const action = target.dataset.action;
+      if (action === "go") {
+        setRoute(target.dataset.path || "/today");
+      }
+      if (action === "back") {
+        stopSpeech();
+        if (history.length > 1) history.back();
+        else setRoute("/today");
+      }
+      if (action === "toggle-check") {
+        const state = loadState();
+        const key = todayKey();
+        state.completions[key] = state.completions[key] || {};
+        state.completions[key][target.dataset.id] =
+          state.completions[key][target.dataset.id] === "done" ? "pending" : "done";
+        saveState(state);
+        render();
+      }
+      if (action === "read-result") {
+        const result = searchState.results[Number(target.dataset.index || 0)];
+        if (!result) return;
+        if (readLabel === "Stop reading") {
+          stopSpeech();
+          render();
+        } else {
+          speak(spokenAnswerFor(result));
+        }
+      }
+      if (action === "read-text") {
+        const text = target.dataset.text || "";
+        if (readLabel === "Stop reading") {
+          stopSpeech();
+          render();
+        } else {
+          speak(text);
+        }
+      }
+    });
+
+    document.addEventListener("input", (event) => {
+      if (event.target.id === "ask-query") {
+        searchState.query = event.target.value;
+        if (searchState.status === "error") searchState.status = "idle";
+        const button = document.querySelector("#ask-form .big-button");
+        if (button) button.disabled = !searchState.query.trim();
+      }
+    });
+
+    document.addEventListener("submit", (event) => {
+      if (event.target.id === "note-form") {
+        event.preventDefault();
+        const form = event.target;
+        const title = form.elements.title.value.trim();
+        const body = form.elements.body.value.trim();
+        const error = form.querySelector("#note-error");
+        if (!title && !body) {
+          error.hidden = false;
+          error.textContent = "Add a name or some content before saving.";
+          return;
+        }
+        const state = loadState();
+        state.notes.push({
+          id: `note_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+          title: title || null,
+          transcript: body || null,
+          createdAt: new Date().toISOString(),
+          updatedAt: null,
+          sourceUser: "patient",
+          verifiedByCaregiver: false,
+          needsReview: false,
+          archivedAt: null
+        });
+        saveState(state);
+        searchState = { query: "", status: "idle", results: [], error: "" };
+        setRoute("/notes");
+      }
+
+      if (event.target.id === "ask-form") {
+        event.preventDefault();
+        const query = searchState.query.trim();
+        if (!query) return;
+        stopSpeech();
+        searchState.status = "searching";
+        render();
+        window.setTimeout(() => {
+          try {
+            const state = loadState();
+            searchState.results = rankNotes(state.notes, query);
+            searchState.status = "done";
+          } catch (error) {
+            searchState.results = [];
+            searchState.status = "error";
+          }
+          render();
+        }, 120);
+      }
+    });
+
+    window.addEventListener("hashchange", () => {
+      stopSpeech();
+      render();
+    });
+
+    window.addEventListener("beforeunload", stopSpeech);
+    window.setInterval(() => {
+      const current = route();
+      const canRefresh = current.name === TODAY_ID || current.name === NOTES_ID || current.name === "note-detail";
+      if (canRefresh && readLabel !== "Stop reading") render();
+    }, 30000);
+
+    if (!window.location.hash) {
+      window.location.hash = "/today";
+    }
+    render();
+  </script>
+</body>
+</html>

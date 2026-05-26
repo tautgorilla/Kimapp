@@ -11,30 +11,62 @@ import {
   type ViewToken,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useRouter, type Href } from 'expo-router';
 import { colors, fontSizes, radii, spacing } from '@/theme';
-import { ChecklistRow } from '@/components/ChecklistRow';
+import { RoutineCard } from '@/components/RoutineCard';
 import { NoteCard } from '@/components/NoteCard';
 import {
-  listTodaysChecklist,
-  markChecklistItem,
-  type ChecklistEntry,
-} from '@/services/checklist';
+  listTodaysRoutineCards,
+  markRoutineCardDone,
+  undoRoutineCardDone,
+  type RoutineCardEntry,
+} from '@/services/routineCards';
 import { listNotes } from '@/services/note';
 import type { Note } from '@/db/schema';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const PAGES = ['today', 'notes'] as const;
 
+type TodayListItem =
+  | { kind: 'header'; label: string; key: string }
+  | { kind: 'card'; entry: RoutineCardEntry; key: string };
+
+function sectionLabel(section: string): string {
+  switch (section) {
+    case 'morning': return 'Morning';
+    case 'afternoon': return 'Afternoon';
+    case 'evening': return 'Evening';
+    case 'leaving_home': return 'Before leaving home';
+    case 'bedtime': return 'Bedtime';
+    case 'custom': return 'Other';
+    default: return section;
+  }
+}
+
+function buildListData(entries: RoutineCardEntry[]): TodayListItem[] {
+  const items: TodayListItem[] = [];
+  let lastSection: string | null = null;
+  for (const entry of entries) {
+    const section = entry.card.section;
+    if (section && section !== lastSection) {
+      items.push({ kind: 'header', label: sectionLabel(section), key: `header-${section}` });
+      lastSection = section;
+    }
+    items.push({ kind: 'card', entry, key: entry.card.id });
+  }
+  return items;
+}
+
 export default function Home() {
   const router = useRouter();
   const [pageIndex, setPageIndex] = useState(0);
-  const [entries, setEntries] = useState<ChecklistEntry[]>([]);
+  const [entries, setEntries] = useState<RoutineCardEntry[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const listRef = useRef<FlatList<(typeof PAGES)[number]>>(null);
 
   const refresh = useCallback(async () => {
-    const [c, n] = await Promise.all([listTodaysChecklist(), listNotes()]);
+    const [c, n] = await Promise.all([listTodaysRoutineCards(), listNotes()]);
     setEntries(c);
     setNotes(n);
   }, []);
@@ -50,13 +82,28 @@ export default function Home() {
   }, [refresh]);
 
   const onToggle = useCallback(
-    async (entry: ChecklistEntry) => {
-      const action = entry.status === 'done' ? 'undo' : 'complete';
-      await markChecklistItem(entry.item.id, action);
+    async (entry: RoutineCardEntry) => {
+      if (entry.status === 'done') {
+        await undoRoutineCardDone(entry.card.id);
+      } else {
+        await markRoutineCardDone(entry.card.id);
+      }
       await refresh();
     },
     [refresh]
   );
+
+  const onToggleExpand = useCallback((id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
 
   const handleViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
     if (viewableItems.length > 0 && viewableItems[0].index != null) {
@@ -87,9 +134,13 @@ export default function Home() {
           item === 'today' ? (
             <TodayPage
               entries={entries}
+              expandedIds={expandedIds}
               onToggle={onToggle}
+              onToggleExpand={onToggleExpand}
               canSwipeToNotes={notes.length > 0}
               onAsk={() => router.push('/ask-notes')}
+              onAddRoutine={() => router.push('/routine/new' as Href)}
+              onEditRoutine={(id) => router.push(`/routine/${id}` as Href)}
             />
           ) : (
             <NotesPage
@@ -122,22 +173,32 @@ export default function Home() {
 
 function TodayPage({
   entries,
+  expandedIds,
   onToggle,
+  onToggleExpand,
   canSwipeToNotes,
   onAsk,
+  onAddRoutine,
+  onEditRoutine,
 }: {
-  entries: ChecklistEntry[];
-  onToggle: (e: ChecklistEntry) => void;
+  entries: RoutineCardEntry[];
+  expandedIds: Set<string>;
+  onToggle: (e: RoutineCardEntry) => void;
+  onToggleExpand: (id: string) => void;
   canSwipeToNotes: boolean;
   onAsk: () => void;
+  onAddRoutine: () => void;
+  onEditRoutine: (id: string) => void;
 }) {
   const remaining = entries.filter((e) => e.status !== 'done').length;
   const total = entries.length;
+  const listData = buildListData(entries);
+
   return (
     <View style={[styles.page, { width: SCREEN_W }]}>
       <View style={styles.headerBlock}>
         <Text style={styles.dateLabel}>{formatToday()}</Text>
-        <Text style={styles.title}>Today's checklist</Text>
+        <Text style={styles.title}>Today's routine</Text>
         <Text style={styles.subtitle}>
           {remaining === 0 && total > 0
             ? 'All done — nice work.'
@@ -153,12 +214,36 @@ function TodayPage({
         </Pressable>
       </View>
       <FlatList
-        data={entries}
-        keyExtractor={(e) => e.item.id}
+        data={listData}
+        keyExtractor={(item) => item.key}
         contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => <ChecklistRow entry={item} onToggle={() => onToggle(item)} />}
+        renderItem={({ item }) => {
+          if (item.kind === 'header') {
+            return <Text style={styles.sectionHeader}>{item.label}</Text>;
+          }
+          return (
+            <RoutineCard
+              entry={item.entry}
+              expanded={expandedIds.has(item.entry.card.id)}
+              onToggleExpand={() => onToggleExpand(item.entry.card.id)}
+              onMarkDone={() => onToggle(item.entry)}
+              onUndoDone={() => onToggle(item.entry)}
+              onEdit={() => onEditRoutine(item.entry.card.id)}
+            />
+          );
+        }}
         ListEmptyComponent={
-          <Text style={styles.empty}>Your caregiver can add items in caregiver mode.</Text>
+          <Text style={styles.empty}>Tap "Add routine" below to add your first routine step.</Text>
+        }
+        ListFooterComponent={
+          <Pressable
+            onPress={onAddRoutine}
+            accessibilityRole="button"
+            accessibilityLabel="Add a routine card"
+            style={({ pressed }) => [styles.addRoutineBtn, pressed && { opacity: 0.7 }]}
+          >
+            <Text style={styles.addRoutineBtnLabel}>+ Add routine</Text>
+          </Pressable>
         }
       />
       {canSwipeToNotes && (
@@ -208,7 +293,7 @@ function NotesPage({
         ListEmptyComponent={
           <View style={styles.emptyWrap}>
             <Text style={styles.empty}>No notes yet.</Text>
-            <Text style={styles.emptyHint}>Tap “New Note” below to create one.</Text>
+            <Text style={styles.emptyHint}>Tap "New Note" below to create one.</Text>
           </View>
         }
       />
@@ -281,6 +366,15 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.md,
     color: colors.textMuted,
   },
+  sectionHeader: {
+    fontSize: fontSizes.sm,
+    fontWeight: '800',
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
+  },
   listContent: {
     paddingHorizontal: spacing.lg,
     paddingBottom: 200,
@@ -300,6 +394,17 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     color: colors.textMuted,
     marginTop: spacing.sm,
+  },
+  addRoutineBtn: {
+    alignSelf: 'center',
+    marginTop: spacing.lg,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+  },
+  addRoutineBtnLabel: {
+    color: colors.primary,
+    fontSize: fontSizes.md,
+    fontWeight: '700',
   },
   swipeHint: {
     position: 'absolute',

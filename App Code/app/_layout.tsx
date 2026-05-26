@@ -86,6 +86,22 @@ export default function RootLayout() {
           />
           <Stack.Screen name="notes/[id]" options={{ title: 'Note' }} />
           <Stack.Screen name="ask-notes" options={{ title: 'Ask My Notes' }} />
+          <Stack.Screen
+            name="routine/new"
+            options={{
+              presentation: 'fullScreenModal',
+              headerShown: false,
+              animation: 'slide_from_bottom',
+            }}
+          />
+          <Stack.Screen
+            name="routine/[id]"
+            options={{
+              presentation: 'fullScreenModal',
+              headerShown: false,
+              animation: 'slide_from_bottom',
+            }}
+          />
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>

@@ -84,6 +84,21 @@ export const settings = sqliteTable('settings', {
   updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull(),
 });
 
+export const routineCards = sqliteTable('routine_cards', {
+  id: text('id').primaryKey().notNull(),
+  title: text('title').notNull(),
+  instruction: text('instruction').notNull(),
+  context: text('context'),
+  safetyNote: text('safety_note'),
+  readAloudText: text('read_aloud_text'),
+  section: text('section'),
+  customSectionLabel: text('custom_section_label'),
+  sortOrder: integer('sort_order').notNull().default(0),
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp_ms' }),
+});
+
 export type Note = typeof notes.$inferSelect;
 export type NewNote = typeof notes.$inferInsert;
 export type Reminder = typeof reminders.$inferSelect;
@@ -96,3 +111,5 @@ export type CompletionLog = typeof completionLogs.$inferSelect;
 export type NewCompletionLog = typeof completionLogs.$inferInsert;
 export type AuditEvent = typeof auditEvents.$inferSelect;
 export type NewAuditEvent = typeof auditEvents.$inferInsert;
+export type RoutineCard = typeof routineCards.$inferSelect;
+export type NewRoutineCard = typeof routineCards.$inferInsert;

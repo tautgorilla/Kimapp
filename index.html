@@ -507,6 +507,189 @@
         padding: 12px 24px;
       }
     }
+
+    /* Routine card styles */
+    .section-header {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+
+    .routine-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .routine-card.done {
+      border-color: var(--success);
+      background: var(--done-surface);
+    }
+
+    .card-header-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      min-height: 74px;
+      gap: 16px;
+      width: 100%;
+      background: transparent;
+      border: none;
+      padding: 16px 24px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .card-check {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      border: 2px solid var(--border);
+      border-radius: 9999px;
+      background: #ffffff;
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .routine-card.done .card-check {
+      border-color: var(--success);
+      background: var(--success);
+    }
+
+    .card-title-block {
+      min-width: 0;
+    }
+
+    .card-title {
+      color: var(--text);
+      font-size: 26px;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
+    .card-title.done {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .card-subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 18px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-chevron {
+      color: var(--muted);
+      font-size: 14px;
+      user-select: none;
+    }
+
+    .card-body {
+      padding: 0 24px 20px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .card-instruction {
+      color: var(--text);
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    .card-context {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    .card-safety {
+      background: #fff4e5;
+      border: 1px solid #f0c070;
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+    }
+
+    .safety-label {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--warn);
+      margin-bottom: 4px;
+    }
+
+    .safety-text {
+      font-size: 16px;
+      color: var(--text);
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .done-btn {
+      flex: 1;
+      min-height: 56px;
+      border: 0;
+      border-radius: var(--radius-md);
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .undo-btn {
+      flex: 1;
+      min-height: 56px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--surface-muted);
+      color: var(--text);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .card-edit-row {
+      margin-top: 2px;
+    }
+
+    .edit-card-link {
+      color: var(--primary);
+      font-size: 18px;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-block;
+      min-height: 44px;
+      line-height: 44px;
+    }
+
+    .add-routine-link {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      min-height: 44px;
+      line-height: 44px;
+      color: var(--primary);
+      font-size: 20px;
+      font-weight: 700;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -516,12 +699,16 @@
     const STORE_KEY = "kimapp.webPreview.v1";
     const TODAY_ID = "today";
     const NOTES_ID = "notes";
-    const SEED_CHECKLIST = [
-      "Check morning medication plan",
-      "Eat breakfast",
-      "Drink a glass of water",
-      "Get dressed",
-      "Bring hearing aids and glasses"
+    const DEFAULT_ROUTINE_CARDS_WEB = [
+      { id: "routine_morning_water", title: "Morning water", instruction: "Drink one glass of water.", context: "Your cup is next to the sink.", safetyNote: "If the cup is missing, use the blue cup in the cabinet.", section: "morning", sortOrder: 0 },
+      { id: "routine_get_dressed", title: "Get dressed", instruction: "Put on today's clothes.", context: "Your outfit is on the chair near the closet.", section: "morning", sortOrder: 1 },
+      { id: "routine_medication_plan", title: "Check morning medication plan", instruction: "Check the morning medication plan in your pill organizer.", context: "The pill organizer is next to the coffee maker.", safetyNote: "If anything looks wrong, call the person you trust. Kimapp does not decide doses.", section: "morning", sortOrder: 2 },
+      { id: "routine_leaving_home", title: "Before leaving home", instruction: "Check keys, wallet, phone, and glasses.", context: "Your keys are usually in the bowl by the door.", section: "leaving_home", sortOrder: 3 },
+      { id: "routine_evening_wind_down", title: "Evening wind-down", instruction: "Turn off the stove area, lock the door, and put your phone on the charger.", context: "The charger is on the bedside table.", section: "evening", sortOrder: 4 }
+    ];
+    const EXTRA_DEFAULTS_WEB = [
+      { id: "routine_leaving_home", title: "Before leaving home", instruction: "Check keys, wallet, phone, and glasses.", context: "Your keys are usually in the bowl by the door.", section: "leaving_home" },
+      { id: "routine_evening_wind_down", title: "Evening wind-down", instruction: "Turn off the stove area, lock the door, and put your phone on the charger.", context: "The charger is on the bedside table.", section: "evening" }
     ];
     const STOP_WORDS = new Set([
       "where", "what", "when", "did", "do", "i", "my", "the", "a", "an",
@@ -544,6 +731,7 @@
     const app = document.querySelector("#app");
     let searchState = { query: "", status: "idle", results: [], error: "" };
     let readLabel = "Read aloud";
+    let expandedCardIds = new Set();
 
     function buildSynonymLookup() {
       const map = new Map();
@@ -555,16 +743,77 @@
     }
 
     function defaultState() {
+      const now = new Date().toISOString();
       return {
-        checklist: SEED_CHECKLIST.map((text, index) => ({
-          id: `check_${index}`,
-          text,
-          sortOrder: index,
-          active: true
-        })),
+        routineCards: DEFAULT_ROUTINE_CARDS_WEB.map((c) => ({ ...c, isActive: true, createdAt: now })),
+        checklist: [],
         completions: {},
         notes: []
       };
+    }
+
+    function getRichCardWeb(text) {
+      const t = text.trim().toLowerCase();
+      if (t.includes("medication") || t.includes("medication plan")) {
+        return { id: "routine_medication_plan", title: "Check morning medication plan", instruction: "Check the morning medication plan in your pill organizer.", context: "The pill organizer is next to the coffee maker.", safetyNote: "If anything looks wrong, call the person you trust. Kimapp does not decide doses.", section: "morning" };
+      }
+      if (t.includes("water")) {
+        return { id: "routine_morning_water", title: "Morning water", instruction: "Drink one glass of water.", context: "Your cup is next to the sink.", safetyNote: "If the cup is missing, use the blue cup in the cabinet.", section: "morning" };
+      }
+      if (t === "get dressed") {
+        return { id: "routine_get_dressed", title: "Get dressed", instruction: "Put on today's clothes.", context: "Your outfit is on the chair near the closet.", section: "morning" };
+      }
+      if (t.includes("breakfast")) {
+        return { id: "routine_eat_breakfast", title: "Eat breakfast", instruction: "Have your morning meal.", section: "morning" };
+      }
+      if (t.includes("hearing") || t.includes("hearing aids")) {
+        return { id: "routine_hearing_aids", title: "Bring hearing aids and glasses", instruction: "Put on your hearing aids and glasses.", section: "morning" };
+      }
+      return null;
+    }
+
+    function migrateChecklistToRoutineCards(checklist) {
+      const now = new Date().toISOString();
+      const cards = [];
+      const insertedIds = new Set();
+      let maxSort = 0;
+      for (const item of checklist) {
+        if (item.active === false) continue;
+        const sort = item.sortOrder ?? 0;
+        if (sort > maxSort) maxSort = sort;
+        const rich = getRichCardWeb(item.text);
+        cards.push({
+          id: rich ? rich.id : ("routine_custom_" + Math.random().toString(36).slice(2, 8)),
+          title: rich ? rich.title : item.text,
+          instruction: rich ? rich.instruction : item.text,
+          context: rich ? (rich.context ?? null) : null,
+          safetyNote: rich ? (rich.safetyNote ?? null) : null,
+          section: rich ? rich.section : "morning",
+          sortOrder: sort,
+          isActive: true,
+          createdAt: now
+        });
+        if (rich) insertedIds.add(rich.id);
+      }
+      let extraSort = maxSort + 1;
+      for (const def of EXTRA_DEFAULTS_WEB) {
+        if (!insertedIds.has(def.id)) {
+          cards.push({ ...def, isActive: true, sortOrder: extraSort++, createdAt: now });
+        }
+      }
+      return cards;
+    }
+
+    function sectionLabel(section) {
+      switch (section) {
+        case "morning": return "Morning";
+        case "afternoon": return "Afternoon";
+        case "evening": return "Evening";
+        case "leaving_home": return "Before leaving home";
+        case "bedtime": return "Bedtime";
+        case "custom": return "Other";
+        default: return section;
+      }
     }
 
     function loadState() {
@@ -573,10 +822,18 @@
         const raw = localStorage.getItem(STORE_KEY);
         if (!raw) return fallback;
         const parsed = JSON.parse(raw);
+        let routineCards = Array.isArray(parsed.routineCards) && parsed.routineCards.length
+          ? parsed.routineCards
+          : null;
+        if (!routineCards) {
+          const checklist = Array.isArray(parsed.checklist) ? parsed.checklist : [];
+          routineCards = checklist.length > 0
+            ? migrateChecklistToRoutineCards(checklist)
+            : fallback.routineCards;
+        }
         return {
-          checklist: Array.isArray(parsed.checklist) && parsed.checklist.length
-            ? parsed.checklist
-            : fallback.checklist,
+          routineCards,
+          checklist: Array.isArray(parsed.checklist) ? parsed.checklist : [],
           completions: parsed.completions && typeof parsed.completions === "object"
             ? parsed.completions
             : {},
@@ -679,6 +936,9 @@
       if (path === NOTES_ID) return { name: NOTES_ID };
       if (path === "new-note") return { name: "new-note" };
       if (path === "ask-notes") return { name: "ask-notes" };
+      if (path === "routine/new") return { name: "routine-new" };
+      const routineEdit = path.match(/^routine\/(.+)$/);
+      if (routineEdit) return { name: "routine-edit", id: decodeURIComponent(routineEdit[1]) };
       const detail = path.match(/^notes\/(.+)$/);
       if (detail) return { name: "note-detail", id: decodeURIComponent(detail[1]) };
       return { name: TODAY_ID };
@@ -922,20 +1182,50 @@
     function renderToday(state) {
       const key = todayKey();
       const completions = state.completions[key] || {};
-      const entries = state.checklist
-        .filter((item) => item.active !== false)
-        .sort((a, b) => a.sortOrder - b.sortOrder);
-      const remaining = entries.filter((item) => completions[item.id] !== "done").length;
-      const subtitle = remaining === 0 && entries.length > 0
+      const cards = (state.routineCards || [])
+        .filter((c) => c.isActive !== false)
+        .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+      const remaining = cards.filter((c) => completions[c.id] !== "done").length;
+      const subtitle = remaining === 0 && cards.length > 0
         ? "All done. Nice work."
-        : `${remaining} of ${entries.length} left`;
-      const rows = entries.map((item) => {
-        const done = completions[item.id] === "done";
+        : `${remaining} of ${cards.length} left`;
+
+      let lastSection = null;
+      const rows = cards.map((card) => {
+        const done = completions[card.id] === "done";
+        const expanded = expandedCardIds.has(card.id);
+        let headerHtml = "";
+        if (card.section && card.section !== lastSection) {
+          headerHtml = `<div class="section-header">${escapeHtml(sectionLabel(card.section))}</div>`;
+          lastSection = card.section;
+        }
+        const bodyHtml = expanded ? `
+          <div class="card-body">
+            <p class="card-instruction">${escapeHtml(card.instruction)}</p>
+            ${card.context ? `<p class="card-context">${escapeHtml(card.context)}</p>` : ""}
+            ${card.safetyNote ? `<div class="card-safety"><div class="safety-label">If unsure:</div><div class="safety-text">${escapeHtml(card.safetyNote)}</div></div>` : ""}
+            <div class="card-actions">
+              <button class="read-button" data-action="read-card" data-id="${escapeHtml(card.id)}">Read aloud</button>
+              <button class="${done ? "undo-btn" : "done-btn"}" data-action="toggle-done" data-id="${escapeHtml(card.id)}">${done ? "Undo done" : "Mark done"}</button>
+            </div>
+            <div class="card-edit-row">
+              <a class="edit-card-link" href="#/routine/${encodeURIComponent(card.id)}">Edit</a>
+            </div>
+          </div>
+        ` : "";
         return `
-          <button class="check-row ${done ? "done" : ""}" data-action="toggle-check" data-id="${escapeHtml(item.id)}" aria-pressed="${done}">
-            <span class="check" aria-hidden="true">${done ? "&#10003;" : ""}</span>
-            <span class="check-label">${escapeHtml(item.text)}</span>
-          </button>
+          ${headerHtml}
+          <div class="routine-card ${done ? "done" : ""}">
+            <div class="card-header-row" data-action="toggle-expand" data-id="${escapeHtml(card.id)}" role="button" aria-expanded="${expanded}" tabindex="0">
+              <button class="card-check" data-action="toggle-done" data-id="${escapeHtml(card.id)}" aria-pressed="${done}">${done ? "&#10003;" : ""}</button>
+              <div class="card-title-block">
+                <div class="card-title ${done ? "done" : ""}">${escapeHtml(card.title)}</div>
+                ${!expanded && card.context ? `<div class="card-subtitle">${escapeHtml(card.context)}</div>` : ""}
+              </div>
+              <span class="card-chevron">${expanded ? "▲" : "▼"}</span>
+            </div>
+            ${bodyHtml}
+          </div>
         `;
       }).join("");
 
@@ -944,15 +1234,114 @@
         <section class="page">
           <div class="header-block">
             <div class="date-label">${escapeHtml(formatToday())}</div>
-            <h1>Today's checklist</h1>
+            <h1>Today's routine</h1>
             <p class="subtitle">${escapeHtml(subtitle)}</p>
             <button class="inline-link" data-action="go" data-path="/ask-notes">Ask saved notes</button>
           </div>
           <div class="list">
-            ${rows || `<p class="empty">Your caregiver can add items in caregiver mode.</p>`}
+            ${rows || `<p class="empty">Tap "Add routine" to add your first routine step.</p>`}
           </div>
+          <a class="add-routine-link" href="#/routine/new">+ Add routine</a>
         </section>
         ${renderFloatingCta()}
+      `;
+    }
+
+    function renderRoutineNew() {
+      return `
+        <div class="topbar">
+          <button class="back-button" data-action="back">Cancel</button>
+        </div>
+        <section class="page">
+          <div class="header-block">
+            <h1>Add routine</h1>
+          </div>
+          <form class="form" id="routine-new-form">
+            <div class="field-group">
+              <label class="label" for="rc-title">Title <span style="color:var(--danger)">*</span></label>
+              <input class="field" id="rc-title" name="title" maxlength="80" autocomplete="off" placeholder="e.g. Morning water" autofocus>
+            </div>
+            <div class="field-group">
+              <label class="label" for="rc-instruction">Instruction <span style="color:var(--danger)">*</span></label>
+              <textarea class="field" id="rc-instruction" name="instruction" maxlength="200" placeholder="Short step to follow." style="min-height:100px;resize:vertical;"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="label" for="rc-context">Where to find it</label>
+              <input class="field" id="rc-context" name="context" maxlength="120" autocomplete="off" placeholder="e.g. Your cup is next to the sink.">
+            </div>
+            <div class="field-group">
+              <label class="label" for="rc-safety">If unsure</label>
+              <textarea class="field" id="rc-safety" name="safetyNote" maxlength="200" placeholder="What to do if something seems wrong." style="min-height:80px;resize:vertical;"></textarea>
+            </div>
+            <div class="field-group">
+              <label class="label" for="rc-section">Part of day</label>
+              <select class="field" id="rc-section" name="section">
+                <option value="">No section</option>
+                <option value="morning">Morning</option>
+                <option value="afternoon">Afternoon</option>
+                <option value="evening">Evening</option>
+                <option value="leaving_home">Before leaving home</option>
+                <option value="bedtime">Bedtime</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            <p class="error-text" id="routine-new-error" hidden></p>
+            <button class="big-button" type="submit">Save</button>
+          </form>
+        </section>
+      `;
+    }
+
+    function renderRoutineEdit(state, id) {
+      const card = (state.routineCards || []).find((c) => c.id === id);
+      if (!card) {
+        return `
+          <div class="topbar"><button class="back-button" data-action="back">Back</button></div>
+          <section class="page"><p class="empty-box">Routine card not found.</p></section>
+        `;
+      }
+      return `
+        <div class="topbar">
+          <button class="back-button" data-action="back">Cancel</button>
+        </div>
+        <section class="page">
+          <div class="header-block">
+            <h1>Edit routine</h1>
+          </div>
+          <form class="form" id="routine-edit-form" data-id="${escapeHtml(id)}">
+            <div class="field-group">
+              <label class="label" for="rc-title">Title <span style="color:var(--danger)">*</span></label>
+              <input class="field" id="rc-title" name="title" maxlength="80" value="${escapeHtml(card.title)}">
+            </div>
+            <div class="field-group">
+              <label class="label" for="rc-instruction">Instruction <span style="color:var(--danger)">*</span></label>
+              <textarea class="field" id="rc-instruction" name="instruction" maxlength="200" style="min-height:100px;resize:vertical;">${escapeHtml(card.instruction)}</textarea>
+            </div>
+            <div class="field-group">
+              <label class="label" for="rc-context">Where to find it</label>
+              <input class="field" id="rc-context" name="context" maxlength="120" value="${escapeHtml(card.context || "")}">
+            </div>
+            <div class="field-group">
+              <label class="label" for="rc-safety">If unsure</label>
+              <textarea class="field" id="rc-safety" name="safetyNote" maxlength="200" style="min-height:80px;resize:vertical;">${escapeHtml(card.safetyNote || "")}</textarea>
+            </div>
+            <div class="field-group">
+              <label class="label" for="rc-section">Part of day</label>
+              <select class="field" id="rc-section" name="section">
+                <option value="" ${!card.section ? "selected" : ""}>No section</option>
+                <option value="morning" ${card.section === "morning" ? "selected" : ""}>Morning</option>
+                <option value="afternoon" ${card.section === "afternoon" ? "selected" : ""}>Afternoon</option>
+                <option value="evening" ${card.section === "evening" ? "selected" : ""}>Evening</option>
+                <option value="leaving_home" ${card.section === "leaving_home" ? "selected" : ""}>Before leaving home</option>
+                <option value="bedtime" ${card.section === "bedtime" ? "selected" : ""}>Bedtime</option>
+                <option value="custom" ${card.section === "custom" ? "selected" : ""}>Custom</option>
+              </select>
+            </div>
+            <p class="error-text" id="routine-edit-error" hidden></p>
+            <button class="big-button" type="submit">Save changes</button>
+            <button class="big-button secondary" type="button" data-action="remove-card" data-id="${escapeHtml(id)}" style="margin-top:8px;border-color:var(--danger);color:var(--danger);">Remove card</button>
+          </form>
+        </section>
       `;
     }
 
@@ -1120,6 +1509,8 @@
       else if (current.name === "new-note") app.innerHTML = renderNewNote();
       else if (current.name === "ask-notes") app.innerHTML = renderAskNotes();
       else if (current.name === "note-detail") app.innerHTML = renderNoteDetail(state, current.id);
+      else if (current.name === "routine-new") app.innerHTML = renderRoutineNew();
+      else if (current.name === "routine-edit") app.innerHTML = renderRoutineEdit(state, current.id);
     }
 
     document.addEventListener("click", (event) => {
@@ -1134,14 +1525,49 @@
         if (history.length > 1) history.back();
         else setRoute("/today");
       }
-      if (action === "toggle-check") {
+      if (action === "toggle-expand") {
+        const cardId = target.dataset.id;
+        if (expandedCardIds.has(cardId)) {
+          expandedCardIds.delete(cardId);
+        } else {
+          expandedCardIds.add(cardId);
+        }
+        render();
+      }
+      if (action === "toggle-done") {
         const state = loadState();
         const key = todayKey();
+        const cardId = target.dataset.id;
         state.completions[key] = state.completions[key] || {};
-        state.completions[key][target.dataset.id] =
-          state.completions[key][target.dataset.id] === "done" ? "pending" : "done";
+        if (state.completions[key][cardId] === "done") {
+          delete state.completions[key][cardId];
+        } else {
+          state.completions[key][cardId] = "done";
+        }
         saveState(state);
         render();
+      }
+      if (action === "read-card") {
+        const cardId = target.dataset.id;
+        const state = loadState();
+        const card = (state.routineCards || []).find((c) => c.id === cardId);
+        if (!card) return;
+        const text = [card.title, card.instruction, card.context, card.safetyNote].filter(Boolean).join(". ");
+        if (readLabel === "Stop reading") {
+          stopSpeech();
+          render();
+        } else {
+          speak(text);
+        }
+      }
+      if (action === "remove-card") {
+        const cardId = target.dataset.id;
+        if (!confirm("Remove this routine card? Your past completions are kept.")) return;
+        const state = loadState();
+        const card = (state.routineCards || []).find((c) => c.id === cardId);
+        if (card) card.isActive = false;
+        saveState(state);
+        setRoute("/today");
       }
       if (action === "read-result") {
         const result = searchState.results[Number(target.dataset.index || 0)];
@@ -1200,6 +1626,68 @@
         saveState(state);
         searchState = { query: "", status: "idle", results: [], error: "" };
         setRoute("/notes");
+      }
+
+      if (event.target.id === "routine-new-form") {
+        event.preventDefault();
+        const form = event.target;
+        const title = form.elements.title.value.trim();
+        const instruction = form.elements.instruction.value.trim();
+        const context = form.elements.context.value.trim();
+        const safetyNote = form.elements.safetyNote.value.trim();
+        const section = form.elements.section.value;
+        const errorEl = form.querySelector("#routine-new-error");
+        if (!title || !instruction) {
+          errorEl.hidden = false;
+          errorEl.textContent = "Title and instruction are required.";
+          return;
+        }
+        errorEl.hidden = true;
+        const state = loadState();
+        const maxSort = (state.routineCards || []).reduce((mx, c) => Math.max(mx, c.sortOrder ?? 0), 0);
+        state.routineCards = state.routineCards || [];
+        state.routineCards.push({
+          id: "routine_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+          title,
+          instruction,
+          context: context || null,
+          safetyNote: safetyNote || null,
+          section: section || null,
+          sortOrder: maxSort + 1,
+          isActive: true,
+          createdAt: new Date().toISOString()
+        });
+        saveState(state);
+        setRoute("/today");
+      }
+
+      if (event.target.id === "routine-edit-form") {
+        event.preventDefault();
+        const form = event.target;
+        const id = form.dataset.id;
+        const title = form.elements.title.value.trim();
+        const instruction = form.elements.instruction.value.trim();
+        const context = form.elements.context.value.trim();
+        const safetyNote = form.elements.safetyNote.value.trim();
+        const section = form.elements.section.value;
+        const errorEl = form.querySelector("#routine-edit-error");
+        if (!title || !instruction) {
+          errorEl.hidden = false;
+          errorEl.textContent = "Title and instruction are required.";
+          return;
+        }
+        errorEl.hidden = true;
+        const state = loadState();
+        const card = (state.routineCards || []).find((c) => c.id === id);
+        if (card) {
+          card.title = title;
+          card.instruction = instruction;
+          card.context = context || null;
+          card.safetyNote = safetyNote || null;
+          card.section = section || null;
+        }
+        saveState(state);
+        setRoute("/today");
       }
 
       if (event.target.id === "ask-form") {
